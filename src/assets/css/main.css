@@ -1,5 +1,5 @@
 html, body, #app {
-    border: solid 1px rgb(255, 255, 255);
+    /* border: solid 1px rgb(255, 255, 255); */
     min-height: 200px;
     height: 100%;
     margin: 0;
