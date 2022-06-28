@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import Login from '../views/user/LoginView'
+import Home from '../views/dashboard/Home'
 
 Vue.use(VueRouter)
 
@@ -14,11 +15,15 @@ const routes = [
     path: '/login',
     component: Login
   },
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomeView
-  // },
+  {
+    path: '/home',
+    component: Home
+    // redirect: '/welcome',
+    // children: [
+    //   { path: '/welcome', component: Welcome },
+    //   { path: '/users', component: Welcome }
+    // ]
+  },
 
   // 404页面
   {
@@ -32,6 +37,20 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    next()
+  } else {
+    const token = window.localStorage.getItem('token')
+    if (!token) {
+      next('/login')
+    } else {
+      next()
+    }
+  }
+  next()
 })
 
 export default router

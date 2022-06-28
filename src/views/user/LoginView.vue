@@ -106,6 +106,7 @@ export default {
           // code为0或者undefined，说明成功了
           this.$message.success('欢迎')
           window.localStorage.setItem('token', response.access)
+          this.$router.push('/home')
         }
         this.loading = false
       }
