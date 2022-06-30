@@ -2,7 +2,7 @@
   <el-container>
     <el-aside :width="isCollapse ? '64px' : '240px'">
       <div class="title">
-        <span>kuseas管理平台</span>
+        <i class="el-icon-eleme"></i>
       </div>
       <el-menu
         router
@@ -11,8 +11,9 @@
         text-color="#fff"
         active-text-color="#ffd04b"
         :collapse="isCollapse"
+        :collapse-transition="false"
       >
-        <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id" >
+        <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
           <template slot="title">
             <i class="el-icon-menu"></i>
             <span>{{ item.name }}</span>
@@ -82,7 +83,7 @@ export default {
   background-color: #041527;
   .title {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 32px;
     text-align: center;
     height: 60px;
   }

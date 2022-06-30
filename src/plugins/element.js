@@ -12,7 +12,15 @@ import {
   Card,
   Menu,
   Submenu,
-  MenuItem
+  MenuItem,
+  Breadcrumb,
+  BreadcrumbItem,
+  Row,
+  Col,
+  Table,
+  TableColumn,
+  Dialog,
+  Pagination
 } from 'element-ui'
 
 Vue.use(Form)
@@ -27,5 +35,13 @@ Vue.use(Card)
 Vue.use(Menu)
 Vue.use(Submenu)
 Vue.use(MenuItem)
+Vue.use(Breadcrumb)
+Vue.use(BreadcrumbItem)
+Vue.use(Row)
+Vue.use(Col)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Dialog)
+Vue.use(Pagination)
 
 Vue.prototype.$message = Message

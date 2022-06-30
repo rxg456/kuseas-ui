@@ -3,26 +3,24 @@ import VueRouter from 'vue-router'
 
 import Login from '../views/user/LoginView'
 import Home from '../views/dashboard/Home'
+import Welcome from '../views/dashboard/Welcome'
+import User from '../views/user/User'
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/login'
-  },
   {
     path: '/login',
     component: Login
   },
   {
     path: '/home',
-    component: Home
-    // redirect: '/welcome',
-    // children: [
-    //   { path: '/welcome', component: Welcome },
-    //   { path: '/users', component: Welcome }
-    // ]
+    component: Home,
+    redirect: '/welcome',
+    children: [
+      { path: '/welcome', component: Welcome },
+      { path: '/users', component: User }
+    ]
   },
 
   // 404页面
