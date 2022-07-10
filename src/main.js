@@ -18,8 +18,8 @@ axios.interceptors.request.use((config) => {
 // 添加响应拦截器
 axios.interceptors.response.use(
   (response) => {
-    // code小于100要求重新登录
-    if (response.data && response.data.code && response.data.code < 100) {
+    // 1 < code < 100 要求重新登录
+    if (response.data && response.data.code && response.data.code > 1 && response.data.code < 100) {
       router.push('/login')
     } else {
       return response

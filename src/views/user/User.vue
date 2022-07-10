@@ -19,8 +19,16 @@
       <el-table :data="dataList" style="width: 100%">
         <el-table-column prop="id" label="ID"> </el-table-column>
         <el-table-column prop="username" label="用户名"> </el-table-column>
-        <el-table-column prop="is_superuser" label="管理员"> </el-table-column>
-        <el-table-column prop="is_active" label="激活"> </el-table-column>
+        <el-table-column prop="is_superuser" label="用户角色">
+          <template #default="{ row }">
+            {{ row.is_superuser ? '管理员' : '普通用户' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="is_active" label="激活">
+          <template #default="{ row }">
+            <el-switch v-model="row.is_active" @change="handleIsactiveChange(row.id, row.is_active)"></el-switch>
+          </template>
+        </el-table-column>
         <el-table-column prop="email" label="邮箱"> </el-table-column>
         <el-table-column prop="phone" label="电话"> </el-table-column>
       </el-table>
@@ -136,6 +144,18 @@ export default {
       }
       this.pagination = response.pagination
       this.dataList = response.results
+    },
+    async handleIsactiveChange(id, isActive) {
+      // 激活或禁用某一个具体的用户
+      // 安装序列化器要求提供所有必须字段
+      // is_active最划算的方式是提交1个字段值，要通过序列化器校验，就必须patch
+      const { data: response } = await this.$http.patch(`users/${id}/`, {
+        is_active: isActive
+      })
+      if (response.code) {
+        return this.message.error(response.message)
+      }
+      this.getList(this.pagination.page)
     }
   }
 }
