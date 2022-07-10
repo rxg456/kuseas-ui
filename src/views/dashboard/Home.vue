@@ -30,7 +30,31 @@
           <i :class="isCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'" @click="isCollapse = !isCollapse"></i>
         </div>
         <div class="info">
-          <el-button type="primary" @click="logout">退出</el-button>
+          <el-dropdown @command="handleCommand">
+            <span class="el-dropdown-link"> {{ user.username }}</span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-key" command="chpwd">修改密码</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-switch-button" divided command="logout">退出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <!-- 修改密码 -->
+          <el-dialog :title="`修改 ${user.username} 密码`" :visible.sync="chpwdDialogVisible" width="38%">
+            <el-form :model="chpwdForm" :rules="chpwdRules" ref="chpwd" label-width="100px">
+              <el-form-item label="旧密码" prop="oldPassword">
+                <el-input type="password" show-password v-model="chpwdForm.oldPassword"></el-input>
+              </el-form-item>
+              <el-form-item label="新密码" prop="password">
+                <el-input type="password" show-password v-model="chpwdForm.password"></el-input>
+              </el-form-item>
+              <el-form-item label="确认密码" prop="checkPass">
+                <el-input type="password" show-password v-model="chpwdForm.checkPass"></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="chpwdDialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="chpwd">确 定</el-button>
+            </span>
+          </el-dialog>
         </div>
       </el-header>
       <el-main>
@@ -45,11 +69,42 @@
 export default {
   created() {
     this.getMenuList()
+    this.getUserInfo()
   },
   data() {
+    const validatePass = (rule, value, callback) => {
+      if (value !== this.chpwdForm.password) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       menuList: [],
-      isCollapse: false
+      isCollapse: false,
+      user: {},
+      // 修改密码
+      chpwdDialogVisible: false,
+      chpwdForm: {
+        oldPassword: '',
+        password: '',
+        checkPass: ''
+      },
+      chpwdRules: {
+        oldPassword: [
+          { required: true, message: '请输入旧密码', trigger: 'blur' },
+          { min: 4, max: 16, message: '长度在 4 到 16 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { min: 4, max: 16, message: '长度在 4 到 16 个字符', trigger: 'blur' }
+        ],
+        checkPass: [
+          { required: true, message: '二次确认新密码', trigger: 'blur' },
+          { min: 4, max: 16, message: '长度在 4 到 16 个字符', trigger: 'blur' },
+          { validator: validatePass, trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -60,6 +115,34 @@ export default {
     async getMenuList() {
       const { data: response } = await this.$http.get('users/menulist/')
       this.menuList = response
+    },
+    async getUserInfo() {
+      const { data: response } = await this.$http.get('users/whoami/')
+      if (response.code) {
+        return this.$message.error(response.message)
+      }
+      this.user = response.user
+    },
+    handleCommand(command) {
+      if (command === 'logout') {
+        this.logout()
+      } else if (command === 'chpwd') {
+        this.chpwdDialogVisible = true
+      }
+    },
+    chpwd() {
+      const name = 'chpwd'
+      this.$refs[name].validate(async (valid) => {
+        if (valid) {
+          console.log(this.chpwdForm)
+          const { data: response } = await this.$http.patch(`users/${this.user.id}/setpwd/`, this.chpwdForm)
+          if (response.code) {
+            return this.$message.error(response.message)
+          }
+          this.$message.success('密码修改成功')
+          this.chpwdDialogVisible = false
+        }
+      })
     }
   }
 }

@@ -21,7 +21,12 @@ import {
   TableColumn,
   Dialog,
   Pagination,
-  Switch
+  Switch,
+  Tooltip,
+  MessageBox,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu
 } from 'element-ui'
 
 Vue.use(Form)
@@ -45,5 +50,10 @@ Vue.use(TableColumn)
 Vue.use(Dialog)
 Vue.use(Pagination)
 Vue.use(Switch)
-
+Vue.use(Tooltip)
+Vue.use(Dropdown)
+Vue.use(DropdownMenu)
+Vue.use(DropdownItem)
 Vue.prototype.$message = Message
+Vue.prototype.$msgbox = MessageBox
+Vue.prototype.$confirm = MessageBox.confirm

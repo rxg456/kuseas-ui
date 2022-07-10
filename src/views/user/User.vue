@@ -8,8 +8,8 @@
     <el-card>
       <el-row :gutter="20">
         <el-col :span="5">
-          <el-input placeholder="请输入内容" v-model="input3">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入搜索关键字" v-model="search">
+            <el-button slot="append" icon="el-icon-search" @click="getList(1)"></el-button>
           </el-input>
         </el-col>
         <el-col :span="6">
@@ -31,6 +31,16 @@
         </el-table-column>
         <el-table-column prop="email" label="邮箱"> </el-table-column>
         <el-table-column prop="phone" label="电话"> </el-table-column>
+        <el-table-column fixed="right" label="操作" width="120">
+          <template #default="{ row }">
+            <el-tooltip v-if="row.id !== 1" content="修改" placement="top" effect="dark">
+              <el-button size="mini" icon="el-icon-edit" @click="handleEdit(row)"></el-button>
+            </el-tooltip>
+            <el-tooltip v-if="row.id !== 1" content="删除" placement="top" effect="dark">
+              <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row.id)"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         @current-change="handleCurrentChange"
@@ -42,8 +52,8 @@
       </el-pagination>
     </el-card>
     <!-- 新增 -->
-    <el-dialog title="提示" :visible.sync="addDialogVisible" width="38%" @close="resetForm('add')">
-      <!-- <el-dialog title="提示" :visible.sync="addDialogVisible" width="80%" @close="$refs['add'].resetFields()"> -->
+    <el-dialog title="提示" :visible.sync="addDialogVisible" width="38%">
+      <!-- <el-dialog title="提示" :visible.sync="addDialogVisible" width="38%" @close="resetForm('add')"> -->
       <el-form :model="addForm" :rules="addRules" ref="add" label-width="100px">
         <el-form-item label="用户名称" prop="username">
           <el-input v-model="addForm.username"></el-input>
@@ -66,6 +76,24 @@
         <el-button type="primary" @click="add">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 修改用户 -->
+    <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="38%">
+      <el-form :model="editForm" :rules="editRules" ref="edit" label-width="100px">
+        <el-form-item label="用户名称" prop="username">
+          {{ editForm.username }}
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="editForm.phone"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="edit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -83,7 +111,7 @@ export default {
       }
     }
     return {
-      input3: '',
+      search: '',
       addDialogVisible: false,
       dataList: [],
       // 分页数据
@@ -109,7 +137,15 @@ export default {
           { min: 4, max: 16, message: '长度在 4 到 16 个字符', trigger: 'blur' },
           { validator: validatePass, trigger: 'blur' }
         ]
-      }
+      },
+      // 修改用户
+      editDialogVisible: false,
+      editForm: {
+        username: '',
+        email: '',
+        phone: ''
+      },
+      editRules: {}
     }
   },
   methods: {
@@ -138,7 +174,12 @@ export default {
       if (!page) {
         page = 1
       }
-      const { data: response } = await this.$http.get(`users/?page=${page}`) // mix list
+      const { data: response } = await this.$http.get('users/', {
+        params: {
+          page,
+          search: this.search
+        }
+      }) // mix list
       if (response.code) {
         return this.$message.error(response.message)
       }
@@ -156,6 +197,42 @@ export default {
         return this.message.error(response.message)
       }
       this.getList(this.pagination.page)
+    },
+    // 修改
+    handleEdit(row) {
+      this.editForm = row
+      this.editDialogVisible = true
+    },
+    edit() {
+      const { id } = this.editForm
+      const name = 'edit'
+      this.$refs[name].validate(async (valid) => {
+        if (valid) {
+          const { data: response } = await this.$http.patch(`users/${id}/`, this.editForm)
+          if (response.code) {
+            return this.$message.error(response.message)
+          }
+          this.editDialogVisible = false
+          this.getList(this.pagination.page)
+        }
+      })
+    },
+    // 删除
+    handleDelete(id) {
+      this.$msgbox
+        .confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'error'
+        })
+        .then(async () => {
+          const { data: response } = await this.$http.delete(`users/${id}/`)
+          if (response.code) {
+            return this.$message.error(response.message)
+          }
+          this.getList()
+        })
+        .catch(() => {})
     }
   }
 }
