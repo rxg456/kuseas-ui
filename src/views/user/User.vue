@@ -43,11 +43,14 @@
         </el-table-column>
       </el-table>
       <el-pagination
+        background
         @current-change="handleCurrentChange"
-        :current-page="pagination.page"
-        :page-size="pagination.size"
-        layout="total, prev, pager, next, jumper"
-        :total="pagination.total"
+        @size-change="handleSizeChange"
+        :current-page="page"
+        :page-sizes="pageSizes"
+        :page-size="size"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
       >
       </el-pagination>
     </el-card>
@@ -115,7 +118,11 @@ export default {
       addDialogVisible: false,
       dataList: [],
       // 分页数据
-      pagination: { total: 0, page: 1, size: 20 },
+      total: 0,
+      page: 1,
+      size: 20,
+      pageSizes: [20, 50, 100, 200],
+
       addForm: {
         username: '',
         password: '',
@@ -149,8 +156,12 @@ export default {
     }
   },
   methods: {
+    handleSizeChange(val) {
+      this.size = val
+      this.getList(1, val)
+    },
     handleCurrentChange(val) {
-      this.getList(val)
+      this.getList(val, this.size)
     },
     resetForm(name) {
       this.$refs[name].resetFields()
@@ -170,20 +181,25 @@ export default {
         }
       })
     },
-    async getList(page) {
+    async getList(page, size) {
       if (!page) {
-        page = 1
+        page = this.page
+      }
+      if (!size) {
+        size = this.size
       }
       const { data: response } = await this.$http.get('users/', {
         params: {
           page,
+          page_size: size,
           search: this.search
         }
       }) // mix list
       if (response.code) {
         return this.$message.error(response.message)
       }
-      this.pagination = response.pagination
+      this.total = response.pagination.total
+      this.page = response.pagination.page
       this.dataList = response.results
     },
     async handleIsactiveChange(id, isActive) {

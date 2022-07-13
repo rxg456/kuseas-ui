@@ -2,7 +2,7 @@
   <el-container>
     <el-aside :width="isCollapse ? '64px' : '240px'">
       <div class="title">
-        <i class="el-icon-eleme"></i>
+        <svg-icon icon-class="title" />
       </div>
       <el-menu
         router
@@ -15,7 +15,7 @@
       >
         <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
           <template slot="title">
-            <i class="el-icon-menu"></i>
+            <svg-icon icon-class="users" />
             <span>{{ item.name }}</span>
           </template>
           <el-menu-item :index="sub.path" v-for="sub in item.children" :key="sub.id">
@@ -33,8 +33,8 @@
           <el-dropdown @command="handleCommand">
             <span class="el-dropdown-link"> {{ user.username }}</span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-key" command="chpwd">修改密码</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-switch-button" divided command="logout">退出</el-dropdown-item>
+              <el-dropdown-item command="chpwd"><svg-icon icon-class="editpwd" /> 修改密码</el-dropdown-item>
+              <el-dropdown-item divided command="logout"><svg-icon icon-class="exit" /> 退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
           <!-- 修改密码 -->
